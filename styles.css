@@ -688,7 +688,7 @@ p {
   position: absolute;
   z-index: 3;
   right: -2px;
-  bottom: 47px;
+  bottom: 10px;
   display: flex;
   align-items: center;
   gap: 11px;
@@ -903,7 +903,7 @@ p {
   position: relative;
   z-index: 2;
   max-width: 200px;
-  margin-top: 203px;
+  margin-top: 210px;
   margin-bottom: 12px;
   font-size: 1.42rem;
 }
@@ -2031,8 +2031,8 @@ p {
 /* Responsive */
 @media (max-width: 1050px) {
   .hero-grid {
-    grid-template-columns: minmax(0, 0.9fr) minmax(400px, 1.1fr);
-    gap: 35px;
+    grid-template-columns: minmax(0, 0.85fr) minmax(380px, 1.15fr);
+    gap: 30px;
   }
 
   .hero-visual {
@@ -2045,7 +2045,7 @@ p {
 
   .process-grid,
   .faq-grid {
-    gap: 70px;
+    gap: 50px;
   }
 
   .contact-card {
@@ -2161,6 +2161,10 @@ p {
   .opportunities-heading {
     grid-template-columns: 1fr;
     gap: 22px;
+  }
+
+  .split-heading {
+    gap: 18px;
   }
 
   .approach-grid,
@@ -2295,7 +2299,7 @@ p {
 
   .floating-note {
     right: -2px;
-    bottom: 19px;
+    bottom: 8px;
     min-width: 184px;
     padding: 10px 12px 10px 9px;
   }
@@ -2368,11 +2372,11 @@ p {
   }
 
   .approach-card h3 {
-    margin-top: 190px;
+    margin-top: 195px;
   }
 
   .plan-card {
-    min-height: 395px;
+    min-height: 0;
   }
 
   .plan-card h3 {
@@ -2420,6 +2424,10 @@ p {
     border-radius: 20px;
   }
 
+  .contact-form {
+    padding: 22px 18px 19px;
+  }
+
   .contact-copy h2 {
     font-size: clamp(2.6rem, 12vw, 3.5rem);
   }
@@ -2441,6 +2449,10 @@ p {
     gap: 39px 20px;
     padding-top: 51px;
     padding-bottom: 45px;
+  }
+
+  .footer-column {
+    min-width: 0;
   }
 
   .footer-brand {
