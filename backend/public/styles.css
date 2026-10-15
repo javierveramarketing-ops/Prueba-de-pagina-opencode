@@ -2693,3 +2693,246 @@ p {
 .toast--info {
   background: var(--ink);
 }
+
+/* ============================================
+   INVESTMENTS SECTION
+   ============================================ */
+
+.investments-section {
+  background: var(--cream);
+}
+
+.investments-section[hidden] {
+  display: none;
+}
+
+.investments-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  padding: 20px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.investment-form-card {
+  max-width: 600px;
+  margin: 0 auto 32px;
+  padding: 24px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.investment-form-card h3 {
+  margin-bottom: 16px;
+}
+
+.form-row-invest {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.investments-list {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.investment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+}
+
+.investment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.investment-info strong {
+  font-size: 1.1rem;
+}
+
+.investment-plan {
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-transform: capitalize;
+}
+
+.investment-desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.investment-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.badge--activa {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge--pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge--completada {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--ink-soft);
+}
+
+/* ============================================
+   NOTIFICATIONS SECTION
+   ============================================ */
+
+.notifications-section {
+  background: var(--white);
+}
+
+.notifications-section[hidden] {
+  display: none;
+}
+
+.notifications-list {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notification-item:hover {
+  background: var(--white);
+}
+
+.notification-item--unread {
+  border-left: 3px solid var(--gold);
+  background: var(--white);
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.notification-icon--alta {
+  background: var(--gold-light);
+}
+
+.notification-icon--media {
+  background: #e8f4f8;
+}
+
+.notification-icon--baja {
+  background: var(--cream);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.notification-content p {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.notification-date {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ============================================
+   RESPONSIVE - INVESTMENTS & NOTIFICATIONS
+   ============================================ */
+
+@media (max-width: 640px) {
+  .investments-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row-invest {
+    grid-template-columns: 1fr;
+  }
+
+  .investment-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .investment-meta {
+    align-items: flex-start;
+  }
+}

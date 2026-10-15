@@ -47,6 +47,27 @@ export interface Descuento {
   activo: boolean;
 }
 
+export interface Inversion {
+  id: string;
+  userId: string;
+  monto: number;
+  plan: 'inicial' | 'intermedio' | 'personalizado';
+  descripcion: string;
+  fecha: string;
+  estado: 'pendiente' | 'activa' | 'completada';
+}
+
+export interface Notificacion {
+  id: string;
+  userId: string;
+  titulo: string;
+  mensaje: string;
+  tipo: 'inversion' | 'promocion' | 'cupon' | 'sistema';
+  prioridad: 'alta' | 'media' | 'baja';
+  leida: boolean;
+  fecha: string;
+}
+
 // ============================================
 // USUARIOS MOCKUP (2 usuarios)
 // ============================================
@@ -222,3 +243,34 @@ export const descuentos: Descuento[] = [
     activo: true,
   },
 ];
+
+// ============================================
+// INVERSIONES
+// ============================================
+
+export const inversiones: Inversion[] = [
+  {
+    id: 'inv-1',
+    userId: 'user-1',
+    monto: 150000,
+    plan: 'intermedio',
+    descripcion: 'Primera inversión de prueba',
+    fecha: '2025-10-01',
+    estado: 'activa',
+  },
+  {
+    id: 'inv-2',
+    userId: 'user-2',
+    monto: 600000,
+    plan: 'personalizado',
+    descripcion: 'Inversión premium',
+    fecha: '2025-09-15',
+    estado: 'activa',
+  },
+];
+
+// ============================================
+// NOTIFICACIONES
+// ============================================
+
+export const notificaciones: Notificacion[] = [];

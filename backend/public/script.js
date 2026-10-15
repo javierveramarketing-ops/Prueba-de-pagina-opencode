@@ -53,6 +53,45 @@ async function apiGetPromociones() {
   return res.json();
 }
 
+async function apiGetInversiones() {
+  const res = await fetch(`${API_URL}/api/user/inversiones`, {
+    headers: { 'Authorization': `Bearer ${authToken}` },
+  });
+  return res.json();
+}
+
+async function apiCreateInversion(monto, plan, descripcion) {
+  const res = await fetch(`${API_URL}/api/user/inversiones`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+    body: JSON.stringify({ monto, plan, descripcion }),
+  });
+  return res.json();
+}
+
+async function apiGetNotificaciones() {
+  const res = await fetch(`${API_URL}/api/user/notificaciones`, {
+    headers: { 'Authorization': `Bearer ${authToken}` },
+  });
+  return res.json();
+}
+
+async function apiMarkNotificacionLeida(id) {
+  const res = await fetch(`${API_URL}/api/user/notificaciones/${id}/leer`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${authToken}` },
+  });
+  return res.json();
+}
+
+async function apiMarkAllNotificacionesLeidas() {
+  const res = await fetch(`${API_URL}/api/user/notificaciones/leer-todas`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${authToken}` },
+  });
+  return res.json();
+}
+
 // ============================================
 // UI FUNCTIONS
 // ============================================
@@ -76,8 +115,16 @@ function updateUIForLoggedInUser(user) {
     userMenu.classList.add('is-visible');
   }
 
-  // Mostrar sección de beneficios
+  // Mostrar secciones de usuario
+  const investmentsSection = document.querySelector('#investments-section');
+  const notificationsSection = document.querySelector('#notifications-section');
+  if (investmentsSection) investmentsSection.hidden = false;
+  if (notificationsSection) notificationsSection.hidden = false;
+
+  // Cargar datos
   loadUserBenefits();
+  loadInvestments();
+  loadNotifications();
 }
 
 function updateUIForLoggedOutUser() {
@@ -89,11 +136,14 @@ function updateUIForLoggedOutUser() {
     userMenu.classList.add('is-visible');
   }
 
-  // Ocultar sección de beneficios
-  const benefitsSection = document.querySelector('#benefits-section');
-  if (benefitsSection) {
-    benefitsSection.classList.remove('is-visible');
-  }
+  // Ocultar secciones de usuario
+  ['benefits-section', 'investments-section', 'notifications-section'].forEach(id => {
+    const el = document.querySelector(`#${id}`);
+    if (el) {
+      el.hidden = true;
+      el.classList.remove('is-visible');
+    }
+  });
 }
 
 async function loadUserBenefits() {
@@ -153,6 +203,144 @@ async function loadUserBenefits() {
     benefitsSection.classList.add('is-visible');
   } catch (error) {
     console.error('Error cargando beneficios:', error);
+  }
+}
+
+// ============================================
+// INVERSIONES
+// ============================================
+
+async function loadInvestments() {
+  try {
+    const res = await apiGetInversiones();
+    if (!res.success) return;
+
+    const summaryEl = document.querySelector('#investments-summary');
+    const listEl = document.querySelector('#investments-list');
+    if (!summaryEl || !listEl) return;
+
+    // Resumen
+    summaryEl.innerHTML = `
+      <div class="summary-card">
+        <span class="summary-label">Total invertido</span>
+        <span class="summary-value">$${res.totalInvertido.toLocaleString()}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Descuento actual</span>
+        <span class="summary-value">${res.descuentoAplicable}%</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Promociones desbloqueadas</span>
+        <span class="summary-value">${res.promocionesDesbloqueadas.length}</span>
+      </div>
+    `;
+
+    // Lista
+    if (res.inversiones.length === 0) {
+      listEl.innerHTML = '<p class="empty-state">Todavía no cargaste inversiones.</p>';
+      return;
+    }
+
+    listEl.innerHTML = res.inversiones.map(inv => `
+      <div class="investment-item">
+        <div class="investment-info">
+          <strong>$${inv.monto.toLocaleString()}</strong>
+          <span class="investment-plan">${inv.plan}</span>
+          ${inv.descripcion ? `<span class="investment-desc">${inv.descripcion}</span>` : ''}
+        </div>
+        <div class="investment-meta">
+          <span>${inv.fecha}</span>
+          <span class="badge badge--${inv.estado}">${inv.estado}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Error cargando inversiones:', error);
+  }
+}
+
+async function handleInvestment(event) {
+  event.preventDefault();
+  const monto = Number(document.querySelector('#inv-monto').value);
+  const plan = document.querySelector('#inv-plan').value;
+  const descripcion = document.querySelector('#inv-descripcion').value;
+
+  if (!monto || monto <= 0) {
+    showToast('Ingresá un monto válido', 'error');
+    return;
+  }
+
+  try {
+    const res = await apiCreateInversion(monto, plan, descripcion);
+
+    if (res.success) {
+      showToast('¡Inversión registrada!', 'success');
+      document.querySelector('#investment-form').reset();
+      loadInvestments();
+      loadNotifications();
+
+      if (res.promoAlcanzada) {
+        showToast(`¡Felicidades! Desbloqueaste: ${res.promoAlcanzada.titulo}`, 'success');
+      }
+    } else {
+      showToast(res.error || 'Error al registrar', 'error');
+    }
+  } catch (error) {
+    console.error('Error creando inversión:', error);
+    showToast('Error de conexión', 'error');
+  }
+}
+
+// ============================================
+// NOTIFICACIONES
+// ============================================
+
+async function loadNotifications() {
+  try {
+    const res = await apiGetNotificaciones();
+    if (!res.success) return;
+
+    const listEl = document.querySelector('#notifications-list');
+    if (!listEl) return;
+
+    if (res.notificaciones.length === 0) {
+      listEl.innerHTML = '<p class="empty-state">No tenés notificaciones todavía.</p>';
+      return;
+    }
+
+    listEl.innerHTML = res.notificaciones.map(notif => `
+      <div class="notification-item ${notif.leida ? '' : 'notification-item--unread'}" onclick="markNotifRead('${notif.id}')">
+        <div class="notification-icon notification-icon--${notif.prioridad}">
+          ${notif.tipo === 'promocion' ? '🎉' : notif.tipo === 'inversion' ? '💰' : '🔔'}
+        </div>
+        <div class="notification-content">
+          <strong>${notif.titulo}</strong>
+          <p>${notif.mensaje}</p>
+          <span class="notification-date">${new Date(notif.fecha).toLocaleDateString('es-AR')}</span>
+        </div>
+        ${!notif.leida ? '<span class="notification-dot"></span>' : ''}
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Error cargando notificaciones:', error);
+  }
+}
+
+async function markNotifRead(id) {
+  try {
+    await apiMarkNotificacionLeida(id);
+    loadNotifications();
+  } catch (error) {
+    console.error('Error marcando notificación:', error);
+  }
+}
+
+async function markAllNotifsRead() {
+  try {
+    await apiMarkAllNotificacionesLeidas();
+    loadNotifications();
+  } catch (error) {
+    console.error('Error marcando notificaciones:', error);
   }
 }
 
@@ -380,6 +568,9 @@ window.logout = logout;
 window.openLoginModal = openLoginModal;
 window.closeLoginModal = closeLoginModal;
 window.closePlanModal = closePlanModal;
+window.handleInvestment = handleInvestment;
+window.markNotifRead = markNotifRead;
+window.markAllNotifsRead = markAllNotifsRead;
 
 // Iniciar cuando el DOM esté listo
 if (document.readyState === 'loading') {

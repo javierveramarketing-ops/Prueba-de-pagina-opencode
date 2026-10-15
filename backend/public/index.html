@@ -248,6 +248,67 @@
         </div>
       </section>
 
+      <!-- Sección de Inversiones (solo visible cuando está logueado) -->
+      <section class="investments-section section-padding" id="investments-section" hidden>
+        <div class="container">
+          <div class="section-heading centered-heading">
+            <div class="eyebrow"><span class="eyebrow-dot"></span>Mis inversiones</div>
+            <h2>Cargá y seguí tus inversiones.</h2>
+            <p>Registrá tus inversiones para desbloquear promociones y descuentos exclusivos.</p>
+          </div>
+
+          <!-- Resumen -->
+          <div class="investments-summary" id="investments-summary">
+            <!-- Se llena dinámicamente con JS -->
+          </div>
+
+          <!-- Formulario de inversión -->
+          <div class="investment-form-card">
+            <h3>Nueva inversión</h3>
+            <form id="investment-form" onsubmit="handleInvestment(event)">
+              <div class="form-row-invest">
+                <div class="form-group">
+                  <label for="inv-monto">Monto ($)</label>
+                  <input type="number" id="inv-monto" min="1" placeholder="Ej: 150000" required />
+                </div>
+                <div class="form-group">
+                  <label for="inv-plan">Plan</label>
+                  <select id="inv-plan" required>
+                    <option value="inicial">Plan Inicial</option>
+                    <option value="intermedio">Plan Intermedio</option>
+                    <option value="personalizado">Plan Personalizado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inv-descripcion">Descripción (opcional)</label>
+                <input type="text" id="inv-descripcion" placeholder="Ej: Primera inversión mensual" />
+              </div>
+              <button type="submit" class="button button--primary">Registrar inversión</button>
+            </form>
+          </div>
+
+          <!-- Lista de inversiones -->
+          <div class="investments-list" id="investments-list">
+            <!-- Se llena dinámicamente con JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección de Notificaciones (solo visible cuando está logueado) -->
+      <section class="notifications-section section-padding" id="notifications-section" hidden>
+        <div class="container">
+          <div class="section-heading centered-heading">
+            <div class="eyebrow"><span class="eyebrow-dot"></span>Notificaciones</div>
+            <h2>Enterate de tus logros.</h2>
+            <p>Cuando alcanzás una promoción, te avisamos acá.</p>
+          </div>
+          <div class="notifications-list" id="notifications-list">
+            <!-- Se llena dinámicamente con JS -->
+          </div>
+        </div>
+      </section>
+
       <section class="process section-padding" id="proceso">
         <div class="container process-grid">
           <div class="process-intro">
