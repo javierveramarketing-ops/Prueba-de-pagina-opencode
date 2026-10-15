@@ -676,6 +676,20 @@ function setupPlanCards() {
     });
   });
 
+  // Cerrar modal con el botón X
+  document.querySelectorAll('.modal-close').forEach((btn) => {
+    btn.addEventListener('click', closePlanModal);
+  });
+
+  // Cerrar modal al hacer click fuera del contenido
+  const planBackdrop = document.querySelector('#plan-modal');
+  if (planBackdrop) {
+    planBackdrop.addEventListener('click', (event) => {
+      if (event.target === planBackdrop) closePlanModal();
+    });
+  }
+
+  // Cerrar con Escape
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closePlanModal();
   });
