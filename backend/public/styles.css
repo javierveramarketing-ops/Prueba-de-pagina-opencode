@@ -2936,3 +2936,139 @@ p {
     align-items: flex-start;
   }
 }
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+
+.dashboard-section {
+  background: var(--white);
+}
+
+.dashboard-section[hidden] {
+  display: none;
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.dash-stat-card {
+  padding: 20px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.dash-stat-label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.dash-stat-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dash-chart-card {
+  padding: 24px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.dash-chart-card h3 {
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+.dash-progress-card {
+  padding: 24px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.dash-progress-card h3 {
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 6px;
+  transition: width 0.6s ease;
+}
+
+.progress-bar--gold {
+  background: var(--gold);
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.promo-next {
+  margin-bottom: 16px;
+}
+
+.promo-next-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.promo-next-info strong {
+  font-size: 1rem;
+}
+
+.promo-next-info span {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* ============================================
+   RESPONSIVE - DASHBOARD
+   ============================================ */
+
+@media (max-width: 768px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .promo-next-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

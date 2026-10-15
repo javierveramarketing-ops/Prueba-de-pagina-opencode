@@ -16,6 +16,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#contenido">Ir al contenido</a>
@@ -231,6 +232,72 @@
             </article>
           </div>
           <div class="catalog-footnote"><span>¿No sabés cuál elegir?</span> <a href="#contacto" data-whatsapp>Contanos qué estás buscando <span>↗</span></a></div>
+        </div>
+      </section>
+
+      <!-- Sección Dashboard (solo visible cuando está logueado) -->
+      <section class="dashboard-section section-padding" id="dashboard-section" hidden>
+        <div class="container">
+          <div class="section-heading centered-heading">
+            <div class="eyebrow"><span class="eyebrow-dot"></span>Tu panel</div>
+            <h2>Seguí tu progreso.</h2>
+            <p>Visualizá cómo crecen tus inversiones y cuánto falta para tu próxima recompensa.</p>
+          </div>
+
+          <!-- Stats cards -->
+          <div class="dash-stats">
+            <div class="dash-stat-card">
+              <span class="dash-stat-label">Total invertido</span>
+              <span class="dash-stat-value" id="dash-total">$0</span>
+            </div>
+            <div class="dash-stat-card">
+              <span class="dash-stat-label">Inversiones</span>
+              <span class="dash-stat-value" id="dash-cantidad">0</span>
+            </div>
+            <div class="dash-stat-card">
+              <span class="dash-stat-label">Nivel actual</span>
+              <span class="dash-stat-value" id="dash-nivel">—</span>
+            </div>
+            <div class="dash-stat-card">
+              <span class="dash-stat-label">Descuento</span>
+              <span class="dash-stat-value" id="dash-descuento">0%</span>
+            </div>
+          </div>
+
+          <!-- Gráfico de evolución -->
+          <div class="dash-chart-card">
+            <h3>Evolución de tus inversiones</h3>
+            <canvas id="dash-chart-evolucion" height="120"></canvas>
+          </div>
+
+          <!-- Progreso al siguiente nivel -->
+          <div class="dash-progress-card" id="dash-nivel-card">
+            <h3>Progreso al siguiente nivel</h3>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="dash-nivel-bar" style="width: 0%"></div>
+            </div>
+            <div class="progress-labels">
+              <span id="dash-nivel-actual">Inicial</span>
+              <span id="dash-nivel-siguiente">—</span>
+            </div>
+          </div>
+
+          <!-- Progreso a siguiente promoción -->
+          <div class="dash-progress-card" id="dash-promo-card">
+            <h3>Próxima promoción</h3>
+            <div class="promo-next" id="dash-promo-next">
+              <!-- Se llena con JS -->
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar progress-bar--gold" id="dash-promo-bar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Inversiones por plan -->
+          <div class="dash-chart-card">
+            <h3>Distribución por plan</h3>
+            <canvas id="dash-chart-planes" height="120"></canvas>
+          </div>
         </div>
       </section>
 

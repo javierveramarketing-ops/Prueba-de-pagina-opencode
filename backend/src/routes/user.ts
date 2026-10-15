@@ -222,4 +222,94 @@ router.put('/notificaciones/leer-todas', authMiddleware, (req: AuthRequest, res:
   res.json({ success: true, message: 'Todas las notificaciones marcadas como leídas' });
 });
 
+// ============================================
+// DASHBOARD
+// ============================================
+
+router.get('/dashboard', authMiddleware, (req: AuthRequest, res: Response) => {
+  const usuarioInversiones = inversiones
+    .filter((i) => i.userId === req.user?.id)
+    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+
+  // Evolución acumulada por fecha
+  const evolucion: { fecha: string; acumulado: number }[] = [];
+  let acumulado = 0;
+  const porFecha = new Map<string, number>();
+
+  usuarioInversiones
+    .filter((i) => i.estado !== 'pendiente')
+    .forEach((i) => {
+      porFecha.set(i.fecha, (porFecha.get(i.fecha) || 0) + i.monto);
+    });
+
+  Array.from(porFecha.entries())
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    .forEach(([fecha, monto]) => {
+      acumulado += monto;
+      evolucion.push({ fecha, acumulado });
+    });
+
+  // Inversiones por plan
+  const porPlan: Record<string, number> = { inicial: 0, intermedio: 0, personalizado: 0 };
+  usuarioInversiones
+    .filter((i) => i.estado !== 'pendiente')
+    .forEach((i) => {
+      porPlan[i.plan] = (porPlan[i.plan] || 0) + i.monto;
+    });
+
+  const totalInvertido = acumulado;
+
+  // Próxima promoción a alcanzar
+  const siguientePromo = promociones
+    .filter((p) => p.activo && p.umbralMonto > totalInvertido)
+    .sort((a, b) => a.umbralMonto - b.umbralMonto)[0];
+
+  // Promociones alcanzadas
+  const promosAlcanzadas = promociones.filter(
+    (p) => p.activo && totalInvertido >= p.umbralMonto
+  );
+
+  // Nivel actual por descuento
+  let nivel = 'Inicial';
+  let proximoNivel = null;
+  if (totalInvertido >= 1000000) nivel = 'Premium';
+  else if (totalInvertido >= 500000) nivel = 'Avanzado';
+  else if (totalInvertido >= 100000) nivel = 'Intermedio';
+
+  const niveles = [
+    { nombre: 'Inicial', umbral: 0, descuento: 5 },
+    { nombre: 'Intermedio', umbral: 100000, descuento: 10 },
+    { nombre: 'Avanzado', umbral: 500000, descuento: 15 },
+    { nombre: 'Premium', umbral: 1000000, descuento: 20 },
+  ];
+
+  const nivelActual = niveles.find((n) => n.nombre === nivel)!;
+  proximoNivel = niveles.find((n) => n.umbral > totalInvertido) || null;
+
+  const progresoNivel = proximoNivel
+    ? ((totalInvertido - nivelActual.umbral) / (proximoNivel.umbral - nivelActual.umbral)) * 100
+    : 100;
+
+  res.json({
+    success: true,
+    evolucion,
+    porPlan,
+    totalInvertido,
+    cantidadInversiones: usuarioInversiones.filter((i) => i.estado !== 'pendiente').length,
+    nivelActual: nivelActual.nombre,
+    descuentoNivel: nivelActual.descuento,
+    proximoNivel: proximoNivel
+      ? { nombre: proximoNivel.nombre, umbral: proximoNivel.umbral, descuento: proximoNivel.descuento }
+      : null,
+    progresoNivel: Math.min(100, Math.max(0, progresoNivel)),
+    promocionesAlcanzadas: promosAlcanzadas.map((p) => p.titulo),
+    siguientePromocion: siguientePromo
+      ? { titulo: siguientePromo.titulo, umbral: siguientePromo.umbralMonto, tipo: siguientePromo.tipo }
+      : null,
+    progresoSiguientePromo: siguientePromo
+      ? Math.min(100, (totalInvertido / siguientePromo.umbralMonto) * 100)
+      : 100,
+  });
+});
+
 export default router;

@@ -92,6 +92,13 @@ async function apiMarkAllNotificacionesLeidas() {
   return res.json();
 }
 
+async function apiGetDashboard() {
+  const res = await fetch(`${API_URL}/api/user/dashboard`, {
+    headers: { 'Authorization': `Bearer ${authToken}` },
+  });
+  return res.json();
+}
+
 // ============================================
 // UI FUNCTIONS
 // ============================================
@@ -116,12 +123,15 @@ function updateUIForLoggedInUser(user) {
   }
 
   // Mostrar secciones de usuario
+  const dashboardSection = document.querySelector('#dashboard-section');
   const investmentsSection = document.querySelector('#investments-section');
   const notificationsSection = document.querySelector('#notifications-section');
+  if (dashboardSection) dashboardSection.hidden = false;
   if (investmentsSection) investmentsSection.hidden = false;
   if (notificationsSection) notificationsSection.hidden = false;
 
   // Cargar datos
+  loadDashboard();
   loadUserBenefits();
   loadInvestments();
   loadNotifications();
@@ -137,7 +147,7 @@ function updateUIForLoggedOutUser() {
   }
 
   // Ocultar secciones de usuario
-  ['benefits-section', 'investments-section', 'notifications-section'].forEach(id => {
+  ['dashboard-section', 'benefits-section', 'investments-section', 'notifications-section'].forEach(id => {
     const el = document.querySelector(`#${id}`);
     if (el) {
       el.hidden = true;
@@ -204,6 +214,167 @@ async function loadUserBenefits() {
   } catch (error) {
     console.error('Error cargando beneficios:', error);
   }
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+
+let chartEvolucion = null;
+let chartPlanes = null;
+
+async function loadDashboard() {
+  try {
+    const res = await apiGetDashboard();
+    if (!res.success) return;
+
+    // Stats
+    const totalEl = document.querySelector('#dash-total');
+    const cantEl = document.querySelector('#dash-cantidad');
+    const nivelEl = document.querySelector('#dash-nivel');
+    const descEl = document.querySelector('#dash-descuento');
+
+    if (totalEl) totalEl.textContent = `$${res.totalInvertido.toLocaleString()}`;
+    if (cantEl) cantEl.textContent = res.cantidadInversiones;
+    if (nivelEl) nivelEl.textContent = res.nivelActual;
+    if (descEl) descEl.textContent = `${res.descuentoNivel}%`;
+
+    // Gráfico de evolución
+    renderEvolucionChart(res.evolucion);
+
+    // Progreso de nivel
+    renderNivelProgress(res);
+
+    // Progreso de promoción
+    renderPromoProgress(res);
+
+    // Gráfico de planes
+    renderPlanesChart(res.porPlan);
+  } catch (error) {
+    console.error('Error cargando dashboard:', error);
+  }
+}
+
+function renderEvolucionChart(evolucion) {
+  const ctx = document.querySelector('#dash-chart-evolucion');
+  if (!ctx) return;
+
+  if (chartEvolucion) chartEvolucion.destroy();
+
+  const labels = evolucion.map((e) => e.fecha);
+  const data = evolucion.map((e) => e.acumulado);
+
+  chartEvolucion = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Total acumulado',
+          data,
+          borderColor: '#d4ae68',
+          backgroundColor: 'rgba(212, 174, 104, 0.15)',
+          fill: true,
+          tension: 0.3,
+          pointBackgroundColor: '#d4ae68',
+          pointRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => `$${item.raw.toLocaleString()}`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: (value) => `$${(value / 1000).toFixed(0)}k`,
+          },
+        },
+      },
+    },
+  });
+}
+
+function renderNivelProgress(res) {
+  const bar = document.querySelector('#dash-nivel-bar');
+  const actual = document.querySelector('#dash-nivel-actual');
+  const siguiente = document.querySelector('#dash-nivel-siguiente');
+
+  if (bar) bar.style.width = `${res.progresoNivel}%`;
+  if (actual) actual.textContent = `${res.nivelActual} (${res.descuentoNivel}%)`;
+
+  if (siguiente) {
+    if (res.proximoNivel) {
+      siguiente.textContent = `${res.proximoNivel.nombre} (${res.proximoNivel.descuento}%) — $${res.proximoNivel.umbral.toLocaleString()}`;
+    } else {
+      siguiente.textContent = '¡Nivel máximo alcanzado!';
+    }
+  }
+}
+
+function renderPromoProgress(res) {
+  const card = document.querySelector('#dash-promo-card');
+  const next = document.querySelector('#dash-promo-next');
+  const bar = document.querySelector('#dash-promo-bar');
+
+  if (!res.siguientePromocion) {
+    if (card) card.innerHTML = '<h3>¡Felicidades!</h3><p class="empty-state">Desbloqueaste todas las promociones disponibles.</p>';
+    return;
+  }
+
+  if (next) {
+    next.innerHTML = `
+      <div class="promo-next-info">
+        <strong>${res.siguientePromocion.titulo}</strong>
+        <span>Faltan $${(res.siguientePromocion.umbral - res.totalInvertido).toLocaleString()} para desbloquearla</span>
+      </div>
+    `;
+  }
+
+  if (bar) bar.style.width = `${res.progresoSiguientePromo}%`;
+}
+
+function renderPlanesChart(porPlan) {
+  const ctx = document.querySelector('#dash-chart-planes');
+  if (!ctx) return;
+
+  if (chartPlanes) chartPlanes.destroy();
+
+  const planes = Object.entries(porPlan).filter(([, v]) => v > 0);
+
+  chartPlanes = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: planes.map(([k]) => k.charAt(0).toUpperCase() + k.slice(1)),
+      datasets: [
+        {
+          data: planes.map(([, v]) => v),
+          backgroundColor: ['#123b35', '#d4ae68', '#7ba69e'],
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: (item) => `$${item.raw.toLocaleString()}`,
+          },
+        },
+      },
+    },
+  });
 }
 
 // ============================================
