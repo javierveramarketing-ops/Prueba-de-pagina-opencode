@@ -30,6 +30,7 @@ router.post('/login', async (req, res) => {
             id: usuario.id,
             email: usuario.email,
             nivel: usuario.nivel,
+            esAdmin: usuario.esAdmin,
         });
         // Devolver datos del usuario (sin contraseña)
         const { password: _, ...usuarioSinPassword } = usuario;
@@ -67,6 +68,7 @@ router.post('/register', async (req, res) => {
             nivel: 'inicial',
             descuento: 5,
             fechaRegistro: new Date().toISOString().split('T')[0],
+            esAdmin: false,
         };
         mockup_1.usuarios.push(nuevoUsuario);
         // Generar token
@@ -74,6 +76,7 @@ router.post('/register', async (req, res) => {
             id: nuevoUsuario.id,
             email: nuevoUsuario.email,
             nivel: nuevoUsuario.nivel,
+            esAdmin: nuevoUsuario.esAdmin,
         });
         const { password: _, ...usuarioSinPassword } = nuevoUsuario;
         res.status(201).json({

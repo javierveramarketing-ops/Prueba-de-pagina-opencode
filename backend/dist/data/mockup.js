@@ -20,6 +20,7 @@ exports.usuarios = [
         nivel: 'avanzado',
         descuento: 15,
         fechaRegistro: '2025-09-15',
+        esAdmin: false,
     },
     {
         id: 'user-2',
@@ -31,6 +32,18 @@ exports.usuarios = [
         nivel: 'premium',
         descuento: 20,
         fechaRegistro: '2025-08-20',
+        esAdmin: false,
+    },
+    {
+        id: 'user-admin',
+        nombre: 'Admin',
+        apellido: 'Capital Clara',
+        email: 'admin@capitalclara.com',
+        password: HASH_123456,
+        nivel: 'premium',
+        descuento: 20,
+        fechaRegistro: '2025-01-01',
+        esAdmin: true,
     },
 ];
 // ============================================

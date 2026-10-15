@@ -4,6 +4,7 @@ import path from 'path';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import promocionesRoutes from './routes/promociones';
+import adminRoutes from './routes/admin';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,10 +20,16 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/promociones', promocionesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Ruta principal - servir el frontend
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Ruta admin - servir panel
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin.html'));
 });
 
 // Manejo de errores

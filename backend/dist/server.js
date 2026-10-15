@@ -9,6 +9,7 @@ const path_1 = __importDefault(require("path"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const user_1 = __importDefault(require("./routes/user"));
 const promociones_1 = __importDefault(require("./routes/promociones"));
+const admin_1 = __importDefault(require("./routes/admin"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 // Middleware
@@ -20,9 +21,14 @@ app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
 app.use('/api/auth', auth_1.default);
 app.use('/api/user', user_1.default);
 app.use('/api/promociones', promociones_1.default);
+app.use('/api/admin', admin_1.default);
 // Ruta principal - servir el frontend
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../public/index.html'));
+});
+// Ruta admin - servir panel
+app.get('/admin', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../public/admin.html'));
 });
 // Manejo de errores
 app.use((err, req, res, next) => {

@@ -8,6 +8,7 @@ export interface Usuario {
     nivel: 'inicial' | 'intermedio' | 'avanzado' | 'premium';
     descuento: number;
     fechaRegistro: string;
+    esAdmin: boolean;
 }
 export interface Cupon {
     id: string;

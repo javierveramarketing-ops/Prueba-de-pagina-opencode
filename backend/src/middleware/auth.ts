@@ -8,6 +8,7 @@ export interface AuthRequest extends Request {
     id: string;
     email: string;
     nivel: string;
+    esAdmin: boolean;
   };
 }
 
@@ -26,6 +27,7 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
       id: decoded.id,
       email: decoded.email,
       nivel: decoded.nivel,
+      esAdmin: decoded.esAdmin || false,
     };
     next();
   } catch (error) {
@@ -33,9 +35,16 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   }
 }
 
-export function generateToken(user: { id: string; email: string; nivel: string }): string {
+export function adminMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user?.esAdmin) {
+    return res.status(403).json({ error: 'Acceso restringido a administradores' });
+  }
+  next();
+}
+
+export function generateToken(user: { id: string; email: string; nivel: string; esAdmin: boolean }): string {
   return jwt.sign(
-    { id: user.id, email: user.email, nivel: user.nivel },
+    { id: user.id, email: user.email, nivel: user.nivel, esAdmin: user.esAdmin },
     JWT_SECRET,
     { expiresIn: '7d' }
   );

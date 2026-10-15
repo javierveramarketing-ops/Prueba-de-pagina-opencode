@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capital Clara | Panel de Administración</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .admin-header h1 {
+        font-size: 1.8rem;
+        color: var(--ink);
+      }
+
+      .admin-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .admin-tab {
+        padding: 10px 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--white);
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .admin-tab.active {
+        background: var(--ink);
+        color: var(--white);
+        border-color: var(--ink);
+      }
+
+      .admin-panel {
+        display: none;
+      }
+
+      .admin-panel.active {
+        display: block;
+      }
+
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+
+      .admin-table th,
+      .admin-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .admin-table th {
+        background: var(--cream);
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--ink);
+      }
+
+      .admin-table tr:hover {
+        background: var(--cream);
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: var(--white);
+        cursor: pointer;
+        margin-right: 4px;
+      }
+
+      .btn-sm:hover {
+        background: var(--cream);
+      }
+
+      .btn-sm--danger {
+        color: #c0392b;
+        border-color: #c0392b;
+      }
+
+      .btn-sm--danger:hover {
+        background: #c0392b;
+        color: white;
+      }
+
+      .modal-form {
+        max-width: 500px;
+      }
+
+      .modal-form .form-group {
+        margin-bottom: 16px;
+      }
+
+      .modal-form label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .modal-form input,
+      .modal-form select,
+      .modal-form textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      .modal-form textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .badge--active {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .badge--inactive {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--ink-soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <div class="admin-header">
+        <h1>Panel de Administración</h1>
+        <div>
+          <span id="admin-user-name" style="margin-right: 12px; font-size: 14px;"></span>
+          <button class="btn-sm" onclick="adminLogout()">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <!-- Login -->
+      <div id="admin-login" class="modal-form" style="max-width: 400px; margin: 60px auto;">
+        <h2 style="margin-bottom: 16px;">Iniciar sesión como admin</h2>
+        <form onsubmit="handleAdminLogin(event)">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="login-email" required />
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="login-password" required />
+          </div>
+          <button type="submit" class="button button--primary" style="width: 100%;">Ingresar</button>
+        </form>
+        <p style="margin-top: 12px; font-size: 12px; color: var(--ink-soft);">
+          Demo: admin@capitalclara.com / 123456
+        </p>
+      </div>
+
+      <!-- Admin Content -->
+      <div id="admin-content" style="display: none;">
+        <div class="admin-tabs">
+          <button class="admin-tab active" onclick="showTab('cupones')">Cupones</button>
+          <button class="admin-tab" onclick="showTab('promociones')">Promociones</button>
+          <button class="admin-tab" onclick="showTab('usuarios')">Usuarios</button>
+        </div>
+
+        <!-- Cupones -->
+        <div id="panel-cupones" class="admin-panel active">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Cupones</h2>
+            <button class="button button--primary" onclick="openCuponForm()">+ Nuevo Cupón</button>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>Descuento</th>
+                <th>Tipo</th>
+                <th>Expiración</th>
+                <th>Usos</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cupones-list"></tbody>
+          </table>
+        </div>
+
+        <!-- Promociones -->
+        <div id="panel-promociones" class="admin-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Promociones</h2>
+            <button class="button button--primary" onclick="openPromoForm()">+ Nueva Promoción</button>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Monto mínimo</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="promociones-list"></tbody>
+          </table>
+        </div>
+
+        <!-- Usuarios -->
+        <div id="panel-usuarios" class="admin-panel">
+          <h2>Usuarios</h2>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Nivel</th>
+                <th>Descuento</th>
+                <th>Registro</th>
+                <th>Rol</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-list"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Cupón -->
+      <div class="modal-backdrop" id="cupon-modal" hidden>
+        <div class="modal">
+          <button class="modal-close" onclick="closeCuponForm()">×</button>
+          <h2 id="cupon-modal-title">Nuevo Cupón</h2>
+          <form class="modal-form" onsubmit="saveCupon(event)">
+            <input type="hidden" id="cupon-id" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Código</label>
+                <input type="text" id="cupon-codigo" required />
+              </div>
+              <div class="form-group">
+                <label>Tipo</label>
+                <select id="cupon-tipo" required>
+                  <option value="porcentaje">Porcentaje</option>
+                  <option value="fijo">Monto fijo</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Descripción</label>
+              <input type="text" id="cupon-descripcion" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Descuento</label>
+                <input type="number" id="cupon-descuento" required />
+              </div>
+              <div class="form-group">
+                <label>Usos máximos</label>
+                <input type="number" id="cupon-usos" value="100" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Expiración</label>
+              <input type="date" id="cupon-expiracion" required />
+            </div>
+            <button type="submit" class="button button--primary" style="width: 100%;">Guardar</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Promoción -->
+      <div class="modal-backdrop" id="promo-modal" hidden>
+        <div class="modal">
+          <button class="modal-close" onclick="closePromoForm()">×</button>
+          <h2 id="promo-modal-title">Nueva Promoción</h2>
+          <form class="modal-form" onsubmit="savePromo(event)">
+            <input type="hidden" id="promo-id" />
+            <div class="form-group">
+              <label>Título</label>
+              <input type="text" id="promo-titulo" required />
+            </div>
+            <div class="form-group">
+              <label>Descripción</label>
+              <textarea id="promo-descripcion" required></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tipo</label>
+                <select id="promo-tipo" required>
+                  <option value="viaje">Viaje</option>
+                  <option value="vino">Vino</option>
+                  <option value="curso">Curso</option>
+                  <option value="experiencia">Experiencia</option>
+                  <option value="asesoria">Asesoría</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Monto mínimo ($)</label>
+                <input type="number" id="promo-monto" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Vigencia</label>
+              <input type="date" id="promo-vigencia" required />
+            </div>
+            <button type="submit" class="button button--primary" style="width: 100%;">Guardar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = window.location.origin;
+      let adminToken = localStorage.getItem('admin_token');
+      let cuponesData = [];
+      let promocionesData = [];
+
+      // Login
+      async function handleAdminLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+          const res = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+
+          if (data.success && data.usuario.esAdmin) {
+            adminToken = data.token;
+            localStorage.setItem('admin_token', adminToken);
+            showAdmin();
+          } else if (data.success) {
+            alert('Este usuario no tiene permisos de administrador.');
+          } else {
+            alert(data.error || 'Credenciales incorrectas');
+          }
+        } catch (err) {
+          alert('Error de conexión');
+        }
+      }
+
+      function adminLogout() {
+        adminToken = null;
+        localStorage.removeItem('admin_token');
+        document.getElementById('admin-content').style.display = 'none';
+        document.getElementById('admin-login').style.display = 'block';
+      }
+
+      // Cargar datos
+      async function loadCupones() {
+        const res = await fetch(`${API_URL}/api/admin/cupones`, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          cuponesData = data.cupones;
+          renderCupones();
+        }
+      }
+
+      async function loadPromociones() {
+        const res = await fetch(`${API_URL}/api/admin/promociones`, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          promocionesData = data.promociones;
+          renderPromociones();
+        }
+      }
+
+      async function loadUsuarios() {
+        const res = await fetch(`${API_URL}/api/admin/usuarios`, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          renderUsuarios(data.usuarios);
+        }
+      }
+
+      // Render
+      function renderCupones() {
+        const tbody = document.getElementById('cupones-list');
+        tbody.innerHTML = cuponesData.map(c => `
+          <tr>
+            <td><code>${c.codigo}</code></td>
+            <td>${c.descripcion}</td>
+            <td>${c.tipo === 'porcentaje' ? c.descuento + '%' : '$' + c.descuento.toLocaleString()}</td>
+            <td>${c.tipo}</td>
+            <td>${c.expiracion}</td>
+            <td>${c.usosActuales}/${c.usosMaximos}</td>
+            <td><span class="badge ${c.activo ? 'badge--active' : 'badge--inactive'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
+            <td>
+              <button class="btn-sm" onclick="editCupon('${c.id}')">Editar</button>
+              <button class="btn-sm btn-sm--danger" onclick="deleteCupon('${c.id}')">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function renderPromociones() {
+        const tbody = document.getElementById('promociones-list');
+        tbody.innerHTML = promocionesData.map(p => `
+          <tr>
+            <td>${p.titulo}</td>
+            <td>${p.descripcion.substring(0, 50)}...</td>
+            <td>${p.tipo}</td>
+            <td>$${p.umbralMonto.toLocaleString()}</td>
+            <td>${p.vigencia}</td>
+            <td><span class="badge ${p.activo ? 'badge--active' : 'badge--inactive'}">${p.activo ? 'Activa' : 'Inactiva'}</span></td>
+            <td>
+              <button class="btn-sm" onclick="editPromo('${p.id}')">Editar</button>
+              <button class="btn-sm btn-sm--danger" onclick="deletePromo('${p.id}')">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function renderUsuarios(usuarios) {
+        const tbody = document.getElementById('usuarios-list');
+        tbody.innerHTML = usuarios.map(u => `
+          <tr>
+            <td>${u.nombre} ${u.apellido}</td>
+            <td>${u.email}</td>
+            <td>${u.nivel}</td>
+            <td>${u.descuento}%</td>
+            <td>${u.fechaRegistro}</td>
+            <td>${u.esAdmin ? '<span class="badge badge--active">Admin</span>' : 'Usuario'}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Tabs
+      function showTab(tab) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(`panel-${tab}`).classList.add('active');
+      }
+
+      // Cupón CRUD
+      function openCuponForm(id = null) {
+        document.getElementById('cupon-id').value = '';
+        document.getElementById('cupon-modal-title').textContent = 'Nuevo Cupón';
+        document.getElementById('cupon-form').reset();
+        document.getElementById('cupon-modal').hidden = false;
+      }
+
+      function closeCuponForm() {
+        document.getElementById('cupon-modal').hidden = true;
+      }
+
+      function editCupon(id) {
+        const cupon = cuponesData.find(c => c.id === id);
+        if (!cupon) return;
+        document.getElementById('cupon-id').value = cupon.id;
+        document.getElementById('cupon-codigo').value = cupon.codigo;
+        document.getElementById('cupon-descripcion').value = cupon.descripcion;
+        document.getElementById('cupon-descuento').value = cupon.descuento;
+        document.getElementById('cupon-tipo').value = cupon.tipo;
+        document.getElementById('cupon-usos').value = cupon.usosMaximos;
+        document.getElementById('cupon-expiracion').value = cupon.expiracion;
+        document.getElementById('cupon-modal-title').textContent = 'Editar Cupón';
+        document.getElementById('cupon-modal').hidden = false;
+      }
+
+      async function saveCupon(e) {
+        e.preventDefault();
+        const id = document.getElementById('cupon-id').value;
+        const body = {
+          codigo: document.getElementById('cupon-codigo').value,
+          descripcion: document.getElementById('cupon-descripcion').value,
+          descuento: Number(document.getElementById('cupon-descuento').value),
+          tipo: document.getElementById('cupon-tipo').value,
+          usosMaximos: Number(document.getElementById('cupon-usos').value),
+          expiracion: document.getElementById('cupon-expiracion').value,
+        };
+
+        const url = id ? `${API_URL}/api/admin/cupones/${id}` : `${API_URL}/api/admin/cupones`;
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          closeCuponForm();
+          loadCupones();
+        } else {
+          alert(data.error);
+        }
+      }
+
+      async function deleteCupon(id) {
+        if (!confirm('¿Eliminar este cupón?')) return;
+        await fetch(`${API_URL}/api/admin/cupones/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        loadCupones();
+      }
+
+      // Promo CRUD
+      function openPromoForm() {
+        document.getElementById('promo-id').value = '';
+        document.getElementById('promo-modal-title').textContent = 'Nueva Promoción';
+        document.getElementById('promo-form').reset();
+        document.getElementById('promo-modal').hidden = false;
+      }
+
+      function closePromoForm() {
+        document.getElementById('promo-modal').hidden = true;
+      }
+
+      function editPromo(id) {
+        const promo = promocionesData.find(p => p.id === id);
+        if (!promo) return;
+        document.getElementById('promo-id').value = promo.id;
+        document.getElementById('promo-titulo').value = promo.titulo;
+        document.getElementById('promo-descripcion').value = promo.descripcion;
+        document.getElementById('promo-tipo').value = promo.tipo;
+        document.getElementById('promo-monto').value = promo.umbralMonto;
+        document.getElementById('promo-vigencia').value = promo.vigencia;
+        document.getElementById('promo-modal-title').textContent = 'Editar Promoción';
+        document.getElementById('promo-modal').hidden = false;
+      }
+
+      async function savePromo(e) {
+        e.preventDefault();
+        const id = document.getElementById('promo-id').value;
+        const body = {
+          titulo: document.getElementById('promo-titulo').value,
+          descripcion: document.getElementById('promo-descripcion').value,
+          tipo: document.getElementById('promo-tipo').value,
+          umbralMonto: Number(document.getElementById('promo-monto').value),
+          vigencia: document.getElementById('promo-vigencia').value,
+        };
+
+        const url = id ? `${API_URL}/api/admin/promociones/${id}` : `${API_URL}/api/admin/promociones`;
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          closePromoForm();
+          loadPromociones();
+        } else {
+          alert(data.error);
+        }
+      }
+
+      async function deletePromo(id) {
+        if (!confirm('¿Eliminar esta promoción?')) return;
+        await fetch(`${API_URL}/api/admin/promociones/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        loadPromociones();
+      }
+
+      // Init
+      async function showAdmin() {
+        document.getElementById('admin-login').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+        await Promise.all([loadCupones(), loadPromociones(), loadUsuarios()]);
+      }
+
+      // Check session
+      if (adminToken) {
+        showAdmin();
+      }
+    </script>
+  </body>
+</html>

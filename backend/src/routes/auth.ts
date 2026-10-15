@@ -34,6 +34,7 @@ router.post('/login', async (req: Request, res: Response) => {
       id: usuario.id,
       email: usuario.email,
       nivel: usuario.nivel,
+      esAdmin: usuario.esAdmin,
     });
 
     // Devolver datos del usuario (sin contraseña)
@@ -79,6 +80,7 @@ router.post('/register', async (req: Request, res: Response) => {
       nivel: 'inicial',
       descuento: 5,
       fechaRegistro: new Date().toISOString().split('T')[0],
+      esAdmin: false,
     };
 
     usuarios.push(nuevoUsuario);
@@ -88,6 +90,7 @@ router.post('/register', async (req: Request, res: Response) => {
       id: nuevoUsuario.id,
       email: nuevoUsuario.email,
       nivel: nuevoUsuario.nivel,
+      esAdmin: nuevoUsuario.esAdmin,
     });
 
     const { password: _, ...usuarioSinPassword } = nuevoUsuario;
