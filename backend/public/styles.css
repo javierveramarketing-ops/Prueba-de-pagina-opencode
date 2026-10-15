@@ -222,6 +222,16 @@ p {
   box-shadow: 0 16px 30px rgba(212, 174, 104, 0.28);
 }
 
+.button--primary svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.button--primary span {
+  white-space: nowrap;
+}
+
 .button--dark {
   min-height: 42px;
   padding: 12px 17px;
