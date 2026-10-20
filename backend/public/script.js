@@ -6,6 +6,17 @@
 const API_URL = window.location.origin;
 
 // ============================================
+// WHATSAPP + FORMULARIO DE CONTACTO
+// ============================================
+// Para activar el enlace real de WhatsApp, reemplazá el valor por el número
+// internacional, sin espacios ni signos. Ejemplo: '5491100000000'.
+// Si queda vacío, los botones caen al formulario de contacto y el envío
+// se hace por correo.
+const WHATSAPP_NUMBER = '';
+const WHATSAPP_DEFAULT_MESSAGE =
+  'Hola, me gustaría conocer más información sobre las oportunidades de Capital Clara.';
+
+// ============================================
 // ESTADO DE AUTENTICACIÓN
 // ============================================
 
@@ -109,6 +120,84 @@ function showToast(message, type = 'info') {
   toast.textContent = message;
   toast.className = `toast is-visible toast--${type}`;
   setTimeout(() => toast.classList.remove('is-visible'), 4000);
+}
+
+function normalizeWhatsAppNumber(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function createWhatsAppUrl(message = WHATSAPP_DEFAULT_MESSAGE) {
+  const number = normalizeWhatsAppNumber(WHATSAPP_NUMBER);
+  if (!number) return '';
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+function setWhatsAppLinks() {
+  const whatsappUrl = createWhatsAppUrl();
+
+  document.querySelectorAll('[data-whatsapp]').forEach((link) => {
+    if (whatsappUrl) {
+      link.href = whatsappUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    } else {
+      link.href = '#contacto';
+      link.removeAttribute('target');
+      link.addEventListener('click', () => {
+        if (link.closest('.modal')) closePlanModal();
+        showToast(
+          'El número de WhatsApp estará disponible cuando se cargue el contacto oficial.',
+          'info'
+        );
+      });
+    }
+  });
+
+  const whatsappLabel = document.querySelector('#whatsapp-label');
+  if (whatsappLabel) {
+    whatsappLabel.textContent = whatsappUrl
+      ? 'Escribinos por WhatsApp'
+      : 'Número pendiente de configuración';
+  }
+}
+
+function setupContactForm() {
+  const form = document.querySelector('#contact-form');
+  if (!form) return;
+
+  const formStatus = document.querySelector('#form-status');
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const name = String(formData.get('name') || '').trim();
+    const email = String(formData.get('email') || '').trim();
+    const interest = String(formData.get('interest') || '').trim();
+    const message = String(formData.get('message') || '').trim();
+    const fullMessage = [
+      `Hola, soy ${name}.`,
+      `Mi email es ${email}.`,
+      `Quiero consultar sobre: ${interest}.`,
+      message ? `Consulta: ${message}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const whatsappUrl = createWhatsAppUrl(fullMessage);
+    if (whatsappUrl) {
+      if (formStatus) formStatus.textContent = 'Abriendo WhatsApp…';
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    const subject = encodeURIComponent('Consulta desde Capital Clara');
+    const mailtoUrl = `mailto:contacto@capitalclara.com?subject=${subject}&body=${encodeURIComponent(fullMessage)}`;
+    if (formStatus) {
+      formStatus.textContent =
+        'El enlace de WhatsApp está pendiente; se abrirá tu correo para enviar la consulta.';
+    }
+    window.location.href = mailtoUrl;
+  });
 }
 
 function updateUIForLoggedInUser(user) {
@@ -630,6 +719,14 @@ function openPlanModal(planKey) {
     .map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`)
     .join('');
 
+  const modalContact = modalBackdrop.querySelector('.modal-contact');
+  if (modalContact) {
+    const url = createWhatsAppUrl(
+      `Hola, me gustaría recibir más información sobre el ${plan.title}.`
+    );
+    modalContact.href = url || '#contacto';
+  }
+
   modalBackdrop.hidden = false;
   document.body.classList.add('modal-open');
 }
@@ -745,6 +842,8 @@ async function init() {
   setupNavigation();
   setupPlanCards();
   setupRevealAnimations();
+  setWhatsAppLinks();
+  setupContactForm();
 }
 
 // Exponer funciones globalmente
